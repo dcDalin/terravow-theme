@@ -501,20 +501,20 @@
         });
       });
 
-      let autoplayInterval = setInterval(() => {
-        const nextSlide = (currentSlide + 1) % slides.length;
-        goToSlide(nextSlide);
-      }, 3000);
+      let autoplayInterval = null;
 
       carousel.addEventListener('mouseenter', () => {
-        clearInterval(autoplayInterval);
-      });
-
-      carousel.addEventListener('mouseleave', () => {
         autoplayInterval = setInterval(() => {
           const nextSlide = (currentSlide + 1) % slides.length;
           goToSlide(nextSlide);
-        }, 3000);
+        }, 2000);
+      });
+
+      carousel.addEventListener('mouseleave', () => {
+        if (autoplayInterval) {
+          clearInterval(autoplayInterval);
+          autoplayInterval = null;
+        }
       });
     });
   });
