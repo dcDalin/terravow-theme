@@ -31,7 +31,14 @@
         class="marquee__repeated-items"
         ref="marqueeItems[]"
       >
-        {% content_for 'blocks' %}
+        {%- for block in section.blocks -%}
+          {%- render block -%}
+          {%- unless forloop.last -%}
+            {%- if section.settings.divider != blank -%}
+              <span class="marquee__divider">{{ section.settings.divider }}</span>
+            {%- endif -%}
+          {%- endunless -%}
+        {%- endfor -%}
       </div>
     </div>
   </div>
@@ -75,6 +82,12 @@
 
   .marquee__repeated-items > * {
     align-content: center;
+  }
+
+  .marquee__divider {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -126,6 +139,12 @@
         }
       ],
       "default": "normal"
+    },
+    {
+      "type": "text",
+      "id": "divider",
+      "label": "t:settings.divider",
+      "info": "t:info.divider_between_items"
     },
     {
       "type": "color_scheme",
