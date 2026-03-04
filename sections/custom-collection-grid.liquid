@@ -14,7 +14,7 @@
     assign show_nav_mobile = true
   endif
 
-  if max_items > 4
+  if max_items > 3
     assign show_nav_desktop = true
   endif
 %}
@@ -117,11 +117,14 @@
                 {% assign temp_collection = collections[collection.handle] %}
                 {% assign first_product = temp_collection.products.first %}
                 {% if first_product %}
+                  <span class="price-label">From</span>
                   <span class="price">{{ first_product.price | money }}</span>
                 {% else %}
-                  <span class="price">From $99.00</span>
+                  <span class="price-label">From</span>
+                  <span class="price">$99.00</span>
                 {% endif %}
               {% else %}
+                <span class="price-label">From</span>
                 <span class="price">$99.00</span>
               {% endif %}
             </div>
@@ -208,7 +211,7 @@
 
   @media (min-width: 768px) {
     .custom-collection-grid__grid {
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 24px;
     }
   }
@@ -339,14 +342,27 @@
   }
 
   .custom-collection-card__price {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
     font-size: 17px;
     font-weight: 700;
     color: #000;
   }
 
+  .custom-collection-card__price .price-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+  }
+
   @media (min-width: 768px) {
     .custom-collection-card__price {
       font-size: 18px;
+    }
+
+    .custom-collection-card__price .price-label {
+      font-size: 15px;
     }
   }
 
