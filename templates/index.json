@@ -111,14 +111,15 @@
     "custom_collection_grid_Ydi7P3": {
       "type": "custom-collection-grid",
       "blocks": {
-        "text_cWHUGd": {
+        "text_LK7X7t": {
           "type": "text",
+          "name": "t:names.heading",
           "settings": {
-            "text": "<h4>Featured Collection</h4>",
-            "width": "fit-content",
+            "text": "<h2>Featured Collection</h2>",
+            "width": "100%",
             "max_width": "normal",
-            "alignment": "left",
-            "type_preset": "h2",
+            "alignment": "center",
+            "type_preset": "rte",
             "font": "var(--font-body--family)",
             "font_size": "1rem",
             "line_height": "normal",
@@ -130,7 +131,7 @@
             "background_color": "#00000026",
             "corner_radius": 0,
             "padding-block-start": 0,
-            "padding-block-end": 16,
+            "padding-block-end": 0,
             "padding-inline-start": 0,
             "padding-inline-end": 0
           },
@@ -138,7 +139,7 @@
         }
       },
       "block_order": [
-        "text_cWHUGd"
+        "text_LK7X7t"
       ],
       "name": "t:names.custom_collection_grid",
       "settings": {
