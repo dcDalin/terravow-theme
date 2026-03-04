@@ -143,11 +143,11 @@
             <a href="{{ first_product_url }}"
                class="custom-collection-card__button"
                data-product-link>
-              <span>{{ section.settings.button_label }}</span>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg class="button-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                 <circle cx="12" cy="12" r="3"></circle>
               </svg>
+              <span>{{ section.settings.button_label }}</span>
             </a>
           </div>
         </div>
@@ -325,16 +325,35 @@
 
   .custom-collection-card__title {
     margin: 0;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
-    color: #111;
+    color: #1a1a1a;
     line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: calc(1.4em * 3);
+    max-height: calc(1.4em * 3);
+  }
+
+  @media (min-width: 768px) {
+    .custom-collection-card__title {
+      font-size: 16px;
+    }
   }
 
   .custom-collection-card__price {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 700;
-    color: #111;
+    color: #000;
+  }
+
+  @media (min-width: 768px) {
+    .custom-collection-card__price {
+      font-size: 18px;
+    }
   }
 
   .custom-collection-card__button {
@@ -342,21 +361,35 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 12px 24px;
+    padding: 10px 20px;
     background: #111;
     color: white;
     text-align: center;
     text-decoration: none;
     border-radius: 999px;
     font-weight: 500;
+    font-size: 13px;
     border: 2px solid #111;
     transition: all 0.2s;
   }
 
-  .custom-collection-card__button svg {
-    width: 20px;
-    height: 20px;
+  .custom-collection-card__button .button-icon {
+    display: none;
+    width: 18px;
+    height: 18px;
     transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  @media (min-width: 768px) {
+    .custom-collection-card__button {
+      padding: 12px 24px;
+      font-size: 14px;
+    }
+
+    .custom-collection-card__button .button-icon {
+      display: block;
+    }
   }
 
   .custom-collection-card__button:hover {
@@ -364,8 +397,8 @@
     color: #111;
   }
 
-  .custom-collection-card__button:hover svg {
-    transform: translateX(4px);
+  .custom-collection-card__button:hover .button-icon {
+    transform: translateX(-4px);
   }
 
   .custom-collection-grid__navigation {
