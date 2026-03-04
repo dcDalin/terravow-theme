@@ -115,7 +115,7 @@
           "type": "text",
           "name": "t:names.heading",
           "settings": {
-            "text": "<h2>Featured Collection</h2>",
+            "text": "<h3>Featured Collection</h3>",
             "width": "100%",
             "max_width": "normal",
             "alignment": "center",
