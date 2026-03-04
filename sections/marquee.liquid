@@ -34,11 +34,9 @@
       >
         {%- for block in section.blocks -%}
           {%- render block -%}
-          {%- unless forloop.last -%}
-            {%- if section.settings.divider != blank -%}
-              <span class="marquee__divider">{{ section.settings.divider }}</span>
-            {%- endif -%}
-          {%- endunless -%}
+          {%- if section.settings.divider != blank -%}
+            <span class="marquee__divider">{{ section.settings.divider }}</span>
+          {%- endif -%}
         {%- endfor -%}
       </div>
     </div>
