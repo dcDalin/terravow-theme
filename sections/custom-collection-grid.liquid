@@ -7,6 +7,18 @@
   else
     assign max_items = 8
   endif
+
+  # Determine if navigation should show
+  assign show_nav_mobile = false
+  assign show_nav_desktop = false
+
+  if max_items > 2
+    assign show_nav_mobile = true
+  endif
+
+  if max_items > 4
+    assign show_nav_desktop = true
+  endif
 %}
 
 <div class="section-background color-{{ section.settings.color_scheme }}"></div>
@@ -41,12 +53,48 @@
 
       {% for collection in section_collections limit: max_items %}
         <div class="custom-collection-card">
-          <!-- Image with carousel placeholder -->
-          <div class="custom-collection-card__image">
-            {% if collection.featured_image %}
-              {{ collection.featured_image | image_url: width: 600 | image_tag: loading: 'lazy' }}
-            {% else %}
-              {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+          <!-- Image carousel -->
+          <div class="custom-collection-card__image-carousel" data-carousel>
+            <div class="carousel-track" data-carousel-track>
+              {% if collection.products.size > 0 %}
+                {% for product in collection.products limit: 5 %}
+                  <div class="carousel-slide {% if forloop.first %}active{% endif %}" data-product-url="{{ product.url }}">
+                    {% if product.featured_image %}
+                      {{ product.featured_image | image_url: width: 600 | image_tag: loading: 'lazy' }}
+                    {% else %}
+                      {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              {% elsif collection.featured_image %}
+                <div class="carousel-slide active" data-product-url="{{ collection.url }}">
+                  {{ collection.featured_image | image_url: width: 600 | image_tag: loading: 'lazy' }}
+                </div>
+              {% else %}
+                <div class="carousel-slide active" data-product-url="{{ collection.url | default: '#' }}">
+                  {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Carousel dots -->
+            {% assign total_slides = collection.products.size %}
+            {% if total_slides == 0 %}
+              {% assign total_slides = 1 %}
+            {% elsif total_slides > 5 %}
+              {% assign total_slides = 5 %}
+            {% endif %}
+
+            {% if total_slides > 1 %}
+              <div class="carousel-dots" data-carousel-dots>
+                {% for i in (1..total_slides) %}
+                  <button
+                    class="carousel-dot {% if forloop.first %}active{% endif %}"
+                    data-slide="{{ forloop.index0 }}"
+                    aria-label="Go to slide {{ forloop.index }}"
+                  ></button>
+                {% endfor %}
+              </div>
             {% endif %}
           </div>
 
@@ -73,8 +121,14 @@
             </div>
 
             <!-- CTA Button -->
-            <a href="{{ collection.url | default: '#' }}" class="custom-collection-card__button">
-              {{ section.settings.button_label }}
+            <a href="{% if collection.products.size > 0 %}{{ collection.products.first.url }}{% else %}{{ collection.url | default: '#' }}{% endif %}"
+               class="custom-collection-card__button"
+               data-product-link>
+              <span>{{ section.settings.button_label }}</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
             </a>
           </div>
         </div>
@@ -82,18 +136,24 @@
     </div>
 
     <!-- Navigation -->
-    <div class="custom-collection-grid__navigation">
-      <button class="nav-button nav-button--prev" aria-label="Previous">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-      </button>
-      <button class="nav-button nav-button--next" aria-label="Next">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
-      </button>
-    </div>
+    {% if show_nav_mobile or show_nav_desktop %}
+      <div
+        class="custom-collection-grid__navigation
+          {% unless show_nav_mobile %}hide-mobile{% endunless %}
+          {% unless show_nav_desktop %}hide-desktop{% endunless %}"
+      >
+        <button class="nav-button nav-button--prev" aria-label="Previous">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <button class="nav-button nav-button--next" aria-label="Next">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+    {% endif %}
   </div>
 </div>
 
@@ -108,7 +168,7 @@
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 16px;
+    padding: 0 8px;
   }
 
   @media (min-width: 768px) {
@@ -150,7 +210,7 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 
-  .custom-collection-card__image {
+  .custom-collection-card__image-carousel {
     position: relative;
     width: 100%;
     padding-bottom: 100%;
@@ -158,14 +218,67 @@
     background: #f5f5f5;
   }
 
-  .custom-collection-card__image img,
-  .custom-collection-card__image svg {
+  .carousel-track {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
+  }
+
+  .carousel-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  .carousel-slide.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .carousel-slide img,
+  .carousel-slide svg {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
+  }
+
+  .carousel-dots {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+  }
+
+  .carousel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 0;
+  }
+
+  .carousel-dot:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: scale(1.2);
+  }
+
+  .carousel-dot.active {
+    background: white;
+    width: 24px;
+    border-radius: 4px;
   }
 
   .custom-collection-card__content {
@@ -207,19 +320,34 @@
   }
 
   .custom-collection-card__button {
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     padding: 12px 24px;
     background: #111;
     color: white;
     text-align: center;
     text-decoration: none;
-    border-radius: 4px;
+    border-radius: 999px;
     font-weight: 500;
-    transition: background 0.2s;
+    border: 2px solid #111;
+    transition: all 0.2s;
+  }
+
+  .custom-collection-card__button svg {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.2s;
   }
 
   .custom-collection-card__button:hover {
-    background: #333;
+    background: white;
+    color: #111;
+  }
+
+  .custom-collection-card__button:hover svg {
+    transform: translateX(4px);
   }
 
   .custom-collection-grid__navigation {
@@ -227,6 +355,20 @@
     justify-content: center;
     gap: 16px;
     margin-top: 24px;
+  }
+
+  .custom-collection-grid__navigation.hide-mobile {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .custom-collection-grid__navigation.hide-mobile {
+      display: flex;
+    }
+
+    .custom-collection-grid__navigation.hide-desktop {
+      display: none;
+    }
   }
 
   .nav-button {
@@ -257,6 +399,76 @@
   }
 {% endstylesheet %}
 
+{% javascript %}
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all carousels
+    const carousels = document.querySelectorAll('[data-carousel]');
+
+    carousels.forEach(carousel => {
+      const track = carousel.querySelector('[data-carousel-track]');
+      const slides = carousel.querySelectorAll('.carousel-slide');
+      const dots = carousel.querySelectorAll('.carousel-dot');
+      const productLink = carousel.closest('.custom-collection-card').querySelector('[data-product-link]');
+
+      if (slides.length <= 1) return; // Skip if only one slide
+
+      let currentSlide = 0;
+
+      // Function to go to specific slide
+      function goToSlide(index) {
+        // Remove active class from current slide and dot
+        slides[currentSlide].classList.remove('active');
+        if (dots[currentSlide]) {
+          dots[currentSlide].classList.remove('active');
+        }
+
+        // Set new current slide
+        currentSlide = index;
+
+        // Add active class to new slide and dot
+        slides[currentSlide].classList.add('active');
+        if (dots[currentSlide]) {
+          dots[currentSlide].classList.add('active');
+        }
+
+        // Update product link URL
+        const newUrl = slides[currentSlide].getAttribute('data-product-url');
+        if (productLink && newUrl) {
+          productLink.setAttribute('href', newUrl);
+        }
+      }
+
+      // Add click handlers to dots
+      dots.forEach((dot, index) => {
+        dot.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          goToSlide(index);
+        });
+      });
+
+      // Auto-advance carousel every 3 seconds
+      let autoplayInterval = setInterval(() => {
+        const nextSlide = (currentSlide + 1) % slides.length;
+        goToSlide(nextSlide);
+      }, 3000);
+
+      // Pause autoplay on hover
+      carousel.addEventListener('mouseenter', () => {
+        clearInterval(autoplayInterval);
+      });
+
+      // Resume autoplay on mouse leave
+      carousel.addEventListener('mouseleave', () => {
+        autoplayInterval = setInterval(() => {
+          const nextSlide = (currentSlide + 1) % slides.length;
+          goToSlide(nextSlide);
+        }, 3000);
+      });
+    });
+  });
+{% endjavascript %}
+
 {% schema %}
 {
   "name": "t:names.custom_collection_grid",
@@ -284,7 +496,7 @@
       "type": "text",
       "id": "button_label",
       "label": "t:settings.button_label",
-      "default": "Shop Now"
+      "default": "View Product"
     },
     {
       "type": "text",
@@ -339,7 +551,7 @@
       "name": "t:names.custom_collection_grid",
       "category": "t:categories.collections",
       "settings": {
-        "button_label": "Shop Now",
+        "button_label": "View Product",
         "default_rating": "4.7",
         "color_scheme": "scheme-1",
         "padding-block-start": 48,
