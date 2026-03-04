@@ -12,37 +12,11 @@
     "marquee_tHNzV6": {
       "type": "marquee",
       "blocks": {
-        "text_Tj9Xp4": {
-          "type": "text",
-          "name": "t:names.heading",
-          "settings": {
-            "text": "<h4>ON SALE NOW</h4>",
-            "width": "fit-content",
-            "max_width": "normal",
-            "alignment": "left",
-            "type_preset": "rte",
-            "font": "var(--font-body--family)",
-            "font_size": "1rem",
-            "line_height": "normal",
-            "letter_spacing": "normal",
-            "case": "none",
-            "wrap": "pretty",
-            "color": "var(--color-foreground)",
-            "background": false,
-            "background_color": "#00000026",
-            "corner_radius": 0,
-            "padding-block-start": 0,
-            "padding-block-end": 0,
-            "padding-inline-start": 0,
-            "padding-inline-end": 0
-          },
-          "blocks": {}
-        },
         "text_4npaFq": {
           "type": "text",
           "name": "t:names.heading",
           "settings": {
-            "text": "<h4>SPRING SALE</h4>",
+            "text": "<h5><strong>SPRING SALE</strong></h5>",
             "width": "fit-content",
             "max_width": "normal",
             "alignment": "left",
@@ -68,7 +42,59 @@
           "type": "text",
           "name": "t:names.heading",
           "settings": {
-            "text": "<h4>FREE SHIPPING</h4>",
+            "text": "<h5><strong>FREE SHIPPING</strong></h5>",
+            "width": "fit-content",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "rte",
+            "font": "var(--font-body--family)",
+            "font_size": "1rem",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "var(--color-foreground)",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "text_Tj9Xp4": {
+          "type": "text",
+          "name": "t:names.heading",
+          "settings": {
+            "text": "<h5><strong>ON SALE NOW</strong></h5>",
+            "width": "fit-content",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "rte",
+            "font": "var(--font-body--family)",
+            "font_size": "1rem",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "var(--color-foreground)",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "text_kQj4gw": {
+          "type": "text",
+          "name": "t:names.heading",
+          "settings": {
+            "text": "<h2>LAST ONE</h2>",
             "width": "fit-content",
             "max_width": "normal",
             "alignment": "left",
@@ -92,17 +118,20 @@
         }
       },
       "block_order": [
-        "text_Tj9Xp4",
         "text_4npaFq",
-        "text_PtBdRB"
+        "text_PtBdRB",
+        "text_Tj9Xp4",
+        "text_kQj4gw"
       ],
       "name": "t:names.marquee_section",
       "settings": {
         "movement_direction": "normal",
         "divider": "⚡",
+        "font_size": 26,
+        "speed": 20,
         "color_scheme": "scheme-5",
-        "padding-block-start": 24,
-        "padding-block-end": 24,
+        "padding-block-start": 16,
+        "padding-block-end": 16,
         "gap_between_elements": 24
       }
     },
