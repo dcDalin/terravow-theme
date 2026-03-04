@@ -1,5 +1,4 @@
 
-
 {% liquid
   if section.settings.collection_list != blank
     assign section_collections = section.settings.collection_list
@@ -8,7 +7,6 @@
     assign max_items = 8
   endif
 
-  # Determine if navigation should show
   assign show_nav_mobile = false
   assign show_nav_desktop = false
 
@@ -37,12 +35,10 @@
   "
 >
   <div class="page-width custom-collection-grid__container">
-    <!-- Header -->
     <div class="custom-collection-grid__header">
       {%- content_for 'blocks' -%}
     </div>
 
-    <!-- Grid -->
     <div class="custom-collection-grid__grid">
       {% if section_collections == null %}
         {% for i in (1..max_items) %}
@@ -53,7 +49,6 @@
 
       {% for collection in section_collections limit: max_items %}
         <div class="custom-collection-card">
-          <!-- Image carousel -->
           <div class="custom-collection-card__image-carousel" data-carousel>
             <div class="carousel-track" data-carousel-track>
               {% if collection.products.size > 0 %}
@@ -77,7 +72,6 @@
               {% endif %}
             </div>
 
-            <!-- Carousel dots -->
             {% assign total_slides = collection.products.size %}
             {% if total_slides == 0 %}
               {% assign total_slides = 1 %}
@@ -98,15 +92,12 @@
             {% endif %}
           </div>
 
-          <!-- Card content -->
           <div class="custom-collection-card__content">
-            <!-- Rating -->
             <div class="custom-collection-card__rating">
               <span class="rating-stars">★★★★★</span>
               <span class="rating-value">{{ section.settings.default_rating }}</span>
             </div>
 
-            <!-- Title -->
             <h3 class="custom-collection-card__title">
               {% if collection.title %}
                 {{ collection.title }}
@@ -115,12 +106,10 @@
               {% endif %}
             </h3>
 
-            <!-- Price -->
             <div class="custom-collection-card__price">
               <span class="price">$99.00</span>
             </div>
 
-            <!-- CTA Button -->
             <a href="{% if collection.products.size > 0 %}{{ collection.products.first.url }}{% else %}{{ collection.url | default: '#' }}{% endif %}"
                class="custom-collection-card__button"
                data-product-link>
@@ -135,7 +124,6 @@
       {% endfor %}
     </div>
 
-    <!-- Navigation -->
     {% if show_nav_mobile or show_nav_desktop %}
       <div
         class="custom-collection-grid__navigation
@@ -401,7 +389,6 @@
 
 {% javascript %}
   document.addEventListener('DOMContentLoaded', function() {
-    // Initialize all carousels
     const carousels = document.querySelectorAll('[data-carousel]');
 
     carousels.forEach(carousel => {
@@ -410,35 +397,29 @@
       const dots = carousel.querySelectorAll('.carousel-dot');
       const productLink = carousel.closest('.custom-collection-card').querySelector('[data-product-link]');
 
-      if (slides.length <= 1) return; // Skip if only one slide
+      if (slides.length <= 1) return;
 
       let currentSlide = 0;
 
-      // Function to go to specific slide
       function goToSlide(index) {
-        // Remove active class from current slide and dot
         slides[currentSlide].classList.remove('active');
         if (dots[currentSlide]) {
           dots[currentSlide].classList.remove('active');
         }
 
-        // Set new current slide
         currentSlide = index;
 
-        // Add active class to new slide and dot
         slides[currentSlide].classList.add('active');
         if (dots[currentSlide]) {
           dots[currentSlide].classList.add('active');
         }
 
-        // Update product link URL
         const newUrl = slides[currentSlide].getAttribute('data-product-url');
         if (productLink && newUrl) {
           productLink.setAttribute('href', newUrl);
         }
       }
 
-      // Add click handlers to dots
       dots.forEach((dot, index) => {
         dot.addEventListener('click', (e) => {
           e.preventDefault();
@@ -447,18 +428,15 @@
         });
       });
 
-      // Auto-advance carousel every 3 seconds
       let autoplayInterval = setInterval(() => {
         const nextSlide = (currentSlide + 1) % slides.length;
         goToSlide(nextSlide);
       }, 3000);
 
-      // Pause autoplay on hover
       carousel.addEventListener('mouseenter', () => {
         clearInterval(autoplayInterval);
       });
 
-      // Resume autoplay on mouse leave
       carousel.addEventListener('mouseleave', () => {
         autoplayInterval = setInterval(() => {
           const nextSlide = (currentSlide + 1) % slides.length;
