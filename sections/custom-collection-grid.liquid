@@ -51,55 +51,66 @@
         <div class="custom-collection-card">
           <div class="custom-collection-card__image-carousel" data-carousel>
             <div class="carousel-track" data-carousel-track>
-              {% if collection.products.size > 0 %}
-                {% for product in collection.products limit: 5 %}
-                  <div class="carousel-slide {% if forloop.first %}active{% endif %}" data-product-url="{{ product.url }}">
-                    {% if product.featured_image %}
-                      {{ product.featured_image | image_url: width: 600 | image_tag: loading: 'lazy' }}
-                    {% else %}
-                      {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
-                    {% endif %}
+              {% if collection %}
+                {% assign collection_products = collections[collection.handle].products %}
+                {% if collection_products.size > 0 %}
+                  {% for product in collection_products limit: 5 %}
+                    <div class="carousel-slide {% if forloop.first %}active{% endif %}" data-product-url="{{ product.url }}">
+                      {% if product.featured_image %}
+                        {{ product.featured_image | image_url: width: 600 | image_tag: loading: 'lazy', alt: product.title }}
+                      {% else %}
+                        {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                      {% endif %}
+                    </div>
+                  {% endfor %}
+                {% elsif collection.featured_image %}
+                  <div class="carousel-slide active" data-product-url="{{ collection.url }}">
+                    {{ collection.featured_image | image_url: width: 600 | image_tag: loading: 'lazy', alt: collection.title }}
                   </div>
-                {% endfor %}
-              {% elsif collection.featured_image %}
-                <div class="carousel-slide active" data-product-url="{{ collection.url }}">
-                  {{ collection.featured_image | image_url: width: 600 | image_tag: loading: 'lazy' }}
-                </div>
+                {% else %}
+                  <div class="carousel-slide active" data-product-url="{{ collection.url | default: '#' }}">
+                    {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                  </div>
+                {% endif %}
               {% else %}
-                <div class="carousel-slide active" data-product-url="{{ collection.url | default: '#' }}">
+                <div class="carousel-slide active" data-product-url="#">
                   {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
                 </div>
               {% endif %}
             </div>
 
-            {% assign total_slides = collection.products.size %}
-            {% if total_slides == 0 %}
-              {% assign total_slides = 1 %}
-            {% elsif total_slides > 5 %}
-              {% assign total_slides = 5 %}
-            {% endif %}
+            {% if collection %}
+              {% assign collection_products = collections[collection.handle].products %}
+              {% assign total_slides = collection_products.size %}
 
-            {% if total_slides > 1 %}
-              <div class="carousel-dots" data-carousel-dots>
-                {% for i in (1..total_slides) %}
-                  <button
-                    class="carousel-dot {% if forloop.first %}active{% endif %}"
-                    data-slide="{{ forloop.index0 }}"
-                    aria-label="Go to slide {{ forloop.index }}"
-                  ></button>
-                {% endfor %}
-              </div>
+              {% if total_slides == 0 %}
+                {% assign total_slides = 1 %}
+              {% elsif total_slides > 5 %}
+                {% assign total_slides = 5 %}
+              {% endif %}
+
+              {% if total_slides > 1 %}
+                <div class="carousel-dots" data-carousel-dots>
+                  {% for i in (1..total_slides) %}
+                    <button
+                      class="carousel-dot {% if forloop.first %}active{% endif %}"
+                      data-slide="{{ forloop.index0 }}"
+                      aria-label="Go to slide {{ forloop.index }}"
+                    ></button>
+                  {% endfor %}
+                </div>
+              {% endif %}
             {% endif %}
           </div>
 
           <div class="custom-collection-card__content">
             <div class="custom-collection-card__rating">
               <span class="rating-stars">★★★★★</span>
-              <span class="rating-value">{{ section.settings.default_rating }}</span>
+              <span class="rating-value">({{ section.settings.default_rating }})</span>
             </div>
 
             <h3 class="custom-collection-card__title">
-              {% if collection.title %}
+              {% if collection %}
                 {{ collection.title }}
               {% else %}
                 Collection Title
@@ -107,10 +118,30 @@
             </h3>
 
             <div class="custom-collection-card__price">
-              <span class="price">$99.00</span>
+              {% if collection %}
+                {% assign collection_products = collections[collection.handle].products %}
+                {% if collection_products.size > 0 %}
+                  <span class="price">{{ collection_products.first.price | money }}</span>
+                {% else %}
+                  <span class="price">{{ 'From $99.00' }}</span>
+                {% endif %}
+              {% else %}
+                <span class="price">$99.00</span>
+              {% endif %}
             </div>
 
-            <a href="{% if collection.products.size > 0 %}{{ collection.products.first.url }}{% else %}{{ collection.url | default: '#' }}{% endif %}"
+            {% if collection %}
+              {% assign collection_products = collections[collection.handle].products %}
+              {% if collection_products.size > 0 %}
+                {% assign first_product_url = collection_products.first.url %}
+              {% else %}
+                {% assign first_product_url = collection.url %}
+              {% endif %}
+            {% else %}
+              {% assign first_product_url = '#' %}
+            {% endif %}
+
+            <a href="{{ first_product_url }}"
                class="custom-collection-card__button"
                data-product-link>
               <span>{{ section.settings.button_label }}</span>
