@@ -14,7 +14,6 @@
 <div
   class="
     section
-    section--page-width
     color-{{ section.settings.color_scheme }}
     custom-collection-grid
     spacing-style
@@ -25,82 +24,97 @@
     {% render 'gap-style', value: section.settings.gap %}
   "
 >
-  <!-- Header -->
-  <div class="custom-collection-grid__header">
-    {%- content_for 'blocks' -%}
-  </div>
+  <div class="page-width custom-collection-grid__container">
+    <!-- Header -->
+    <div class="custom-collection-grid__header">
+      {%- content_for 'blocks' -%}
+    </div>
 
-  <!-- Grid -->
-  <div class="custom-collection-grid__grid">
-    {% if section_collections == null %}
-      {% for i in (1..max_items) %}
-        {% assign section_collections = section_collections | append: ', ' %}
-      {% endfor %}
-      {% assign section_collections = section_collections | split: ',' %}
-    {% endif %}
+    <!-- Grid -->
+    <div class="custom-collection-grid__grid">
+      {% if section_collections == null %}
+        {% for i in (1..max_items) %}
+          {% assign section_collections = section_collections | append: ', ' %}
+        {% endfor %}
+        {% assign section_collections = section_collections | split: ',' %}
+      {% endif %}
 
-    {% for collection in section_collections limit: max_items %}
-      <div class="custom-collection-card">
-        <!-- Image with carousel placeholder -->
-        <div class="custom-collection-card__image">
-          {% if collection.featured_image %}
-            {{ collection.featured_image | image_url: width: 600 | image_tag: loading: 'lazy' }}
-          {% else %}
-            {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
-          {% endif %}
-        </div>
-
-        <!-- Card content -->
-        <div class="custom-collection-card__content">
-          <!-- Rating -->
-          <div class="custom-collection-card__rating">
-            <span class="rating-stars">★★★★★</span>
-            <span class="rating-value">{{ section.settings.default_rating }}</span>
-          </div>
-
-          <!-- Title -->
-          <h3 class="custom-collection-card__title">
-            {% if collection.title %}
-              {{ collection.title }}
+      {% for collection in section_collections limit: max_items %}
+        <div class="custom-collection-card">
+          <!-- Image with carousel placeholder -->
+          <div class="custom-collection-card__image">
+            {% if collection.featured_image %}
+              {{ collection.featured_image | image_url: width: 600 | image_tag: loading: 'lazy' }}
             {% else %}
-              Collection Title
+              {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
             {% endif %}
-          </h3>
-
-          <!-- Price -->
-          <div class="custom-collection-card__price">
-            <span class="price">$99.00</span>
           </div>
 
-          <!-- CTA Button -->
-          <a href="{{ collection.url | default: '#' }}" class="custom-collection-card__button">
-            {{ section.settings.button_label }}
-          </a>
-        </div>
-      </div>
-    {% endfor %}
-  </div>
+          <!-- Card content -->
+          <div class="custom-collection-card__content">
+            <!-- Rating -->
+            <div class="custom-collection-card__rating">
+              <span class="rating-stars">★★★★★</span>
+              <span class="rating-value">{{ section.settings.default_rating }}</span>
+            </div>
 
-  <!-- Navigation -->
-  <div class="custom-collection-grid__navigation">
-    <button class="nav-button nav-button--prev" aria-label="Previous">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="15 18 9 12 15 6"></polyline>
-      </svg>
-    </button>
-    <button class="nav-button nav-button--next" aria-label="Next">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="9 18 15 12 9 6"></polyline>
-      </svg>
-    </button>
+            <!-- Title -->
+            <h3 class="custom-collection-card__title">
+              {% if collection.title %}
+                {{ collection.title }}
+              {% else %}
+                Collection Title
+              {% endif %}
+            </h3>
+
+            <!-- Price -->
+            <div class="custom-collection-card__price">
+              <span class="price">$99.00</span>
+            </div>
+
+            <!-- CTA Button -->
+            <a href="{{ collection.url | default: '#' }}" class="custom-collection-card__button">
+              {{ section.settings.button_label }}
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Navigation -->
+    <div class="custom-collection-grid__navigation">
+      <button class="nav-button nav-button--prev" aria-label="Previous">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <button class="nav-button nav-button--next" aria-label="Next">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+    </div>
   </div>
 </div>
 
 {% stylesheet %}
   .custom-collection-grid {
+    width: 100%;
+  }
+
+  .custom-collection-grid__container {
     display: flex;
     flex-direction: column;
     width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  @media (min-width: 768px) {
+    .custom-collection-grid__container {
+      padding: 0 24px;
+    }
   }
 
   .custom-collection-grid__header {
