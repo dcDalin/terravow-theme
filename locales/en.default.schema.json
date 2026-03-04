@@ -208,7 +208,8 @@
     "team_with_goal": "<h2>A team with a goal</h2>",
     "unable_to_accept_returns": "<p>We are unable to accept returns on certain items. These will be carefully marked before purchase.</p>",
     "uncompromising_standards": "<p>Uncompromising standards </p>",
-    "work_quickly_to_ship": "<p>We will work quickly to ship your order as soon as possible. Once your order has shipped, you will receive an email with further information. Delivery times vary depending on your location.</p>"
+    "work_quickly_to_ship": "<p>We will work quickly to ship your order as soon as possible. Once your order has shipped, you will receive an email with further information. Delivery times vary depending on your location.</p>",
+    "featured_collections": "<h2>Featured Collections</h2>"
   },
   "info": {
     "actions_display_style": "Icons are always used on mobile",
@@ -234,7 +235,8 @@
     "video_external": "Use a YouTube or Vimeo URL",
     "pills_usage": "Used for applied filters, discount codes, and search suggestions",
     "media_type_info": "Features are populated from your menu links",
-    "divider_between_items": "Character or symbol displayed between marquee items"
+    "divider_between_items": "Character or symbol displayed between marquee items",
+    "default_rating_value": "Displayed rating value (e.g., 4.7)"
   },
   "names": {
     "column": "Column",
@@ -435,7 +437,8 @@
     "video_section": "Video",
     "view_all_button": "View all",
     "pills": "Pills",
-    "comparison_slider": "Comparison slider"
+    "comparison_slider": "Comparison slider",
+    "custom_collection_grid": "Custom collection grid"
   },
   "options": {
     "above_carousel": "Above carousel",
@@ -1175,7 +1178,9 @@
     "cs_slider_inner_color": "Slider inner color",
     "text_on_images": "Text on images",
     "x_position": "Horizontal position",
-    "y_position": "Vertical position"
+    "y_position": "Vertical position",
+    "button_label": "Button label",
+    "default_rating": "Default rating"
   },
   "text_defaults": {
     "accordion_heading": "Accordion heading",

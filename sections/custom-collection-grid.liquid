@@ -1,0 +1,361 @@
+
+
+{% liquid
+  if section.settings.collection_list != blank
+    assign section_collections = section.settings.collection_list
+    assign max_items = section.settings.collection_list.count
+  else
+    assign max_items = 8
+  endif
+%}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+
+<div
+  class="
+    section
+    section--page-width
+    color-{{ section.settings.color_scheme }}
+    custom-collection-grid
+    spacing-style
+    gap-style
+  "
+  style="
+    {% render 'spacing-style', settings: section.settings %}
+    {% render 'gap-style', value: section.settings.gap %}
+  "
+>
+  <!-- Header -->
+  <div class="custom-collection-grid__header">
+    {%- content_for 'blocks' -%}
+  </div>
+
+  <!-- Grid -->
+  <div class="custom-collection-grid__grid">
+    {% if section_collections == null %}
+      {% for i in (1..max_items) %}
+        {% assign section_collections = section_collections | append: ', ' %}
+      {% endfor %}
+      {% assign section_collections = section_collections | split: ',' %}
+    {% endif %}
+
+    {% for collection in section_collections limit: max_items %}
+      <div class="custom-collection-card">
+        <!-- Image with carousel placeholder -->
+        <div class="custom-collection-card__image">
+          {% if collection.featured_image %}
+            {{ collection.featured_image | image_url: width: 600 | image_tag: loading: 'lazy' }}
+          {% else %}
+            {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+          {% endif %}
+        </div>
+
+        <!-- Card content -->
+        <div class="custom-collection-card__content">
+          <!-- Rating -->
+          <div class="custom-collection-card__rating">
+            <span class="rating-stars">★★★★★</span>
+            <span class="rating-value">{{ section.settings.default_rating }}</span>
+          </div>
+
+          <!-- Title -->
+          <h3 class="custom-collection-card__title">
+            {% if collection.title %}
+              {{ collection.title }}
+            {% else %}
+              Collection Title
+            {% endif %}
+          </h3>
+
+          <!-- Price -->
+          <div class="custom-collection-card__price">
+            <span class="price">$99.00</span>
+          </div>
+
+          <!-- CTA Button -->
+          <a href="{{ collection.url | default: '#' }}" class="custom-collection-card__button">
+            {{ section.settings.button_label }}
+          </a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Navigation -->
+  <div class="custom-collection-grid__navigation">
+    <button class="nav-button nav-button--prev" aria-label="Previous">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
+    <button class="nav-button nav-button--next" aria-label="Next">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </button>
+  </div>
+</div>
+
+{% stylesheet %}
+  .custom-collection-grid {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .custom-collection-grid__header {
+    margin-bottom: 24px;
+  }
+
+  .custom-collection-grid__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  @media (min-width: 768px) {
+    .custom-collection-grid__grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+  }
+
+  .custom-collection-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .custom-collection-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .custom-collection-card__image {
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+
+  .custom-collection-card__image img,
+  .custom-collection-card__image svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .custom-collection-card__content {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .custom-collection-card__rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+  }
+
+  .rating-stars {
+    color: #fbbf24;
+    letter-spacing: 2px;
+  }
+
+  .rating-value {
+    color: #666;
+    font-weight: 500;
+  }
+
+  .custom-collection-card__title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #111;
+    line-height: 1.4;
+  }
+
+  .custom-collection-card__price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111;
+  }
+
+  .custom-collection-card__button {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #111;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+
+  .custom-collection-card__button:hover {
+    background: #333;
+  }
+
+  .custom-collection-grid__navigation {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .nav-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid #e5e5e5;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .nav-button:hover {
+    background: #f5f5f5;
+    border-color: #111;
+  }
+
+  .nav-button:active {
+    transform: scale(0.95);
+  }
+
+  .nav-button svg {
+    width: 24px;
+    height: 24px;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.custom_collection_grid",
+  "blocks": [
+    {
+      "type": "@theme"
+    },
+    {
+      "type": "text"
+    },
+    {
+      "type": "button"
+    },
+    {
+      "type": "group"
+    }
+  ],
+  "settings": [
+    {
+      "type": "collection_list",
+      "id": "collection_list",
+      "label": "t:settings.collection_list"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "t:settings.button_label",
+      "default": "Shop Now"
+    },
+    {
+      "type": "text",
+      "id": "default_rating",
+      "label": "t:settings.default_rating",
+      "default": "4.7",
+      "info": "t:info.default_rating_value"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "t:settings.gap",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.custom_collection_grid",
+      "category": "t:categories.collections",
+      "settings": {
+        "button_label": "Shop Now",
+        "default_rating": "4.7",
+        "color_scheme": "scheme-1",
+        "padding-block-start": 48,
+        "padding-block-end": 48,
+        "gap": 24
+      },
+      "blocks": {
+        "heading": {
+          "type": "text",
+          "settings": {
+            "text": "t:html_defaults.featured_collections",
+            "type_preset": "rte",
+            "font": "var(--font-body--family)",
+            "font_size": "",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "width": "fit-content",
+            "max_width": "normal",
+            "alignment": "left",
+            "padding-block-start": 0,
+            "padding-block-end": 16,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          }
+        }
+      },
+      "block_order": ["heading"]
+    }
+  ]
+}
+{% endschema %}
