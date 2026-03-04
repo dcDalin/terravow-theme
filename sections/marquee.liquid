@@ -15,8 +15,9 @@
     {%- render 'spacing-style', settings: section.settings %};
     {% render 'gap-style', value: gap_between_elements, name: 'marquee-gap' %}
     --marquee-direction: {{ section.settings.movement_direction }};
+    --marquee-font-size: {{ section.settings.font_size }}px;
   "
-  data-speed-factor="25"
+  data-speed-factor="{{ section.settings.speed }}"
   data-movement-direction="{{ section.settings.movement_direction }}"
 >
   <div
@@ -78,6 +79,7 @@
     gap: var(--marquee-gap);
     align-items: center;
     justify-content: center;
+    font-size: var(--marquee-font-size);
   }
 
   .marquee__repeated-items > * {
@@ -145,6 +147,26 @@
       "id": "divider",
       "label": "t:settings.divider",
       "info": "t:info.divider_between_items"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "label": "Font size",
+      "min": 12,
+      "max": 120,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "t:settings.speed",
+      "info": "Lower values make the marquee move faster",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "default": 25
     },
     {
       "type": "color_scheme",
