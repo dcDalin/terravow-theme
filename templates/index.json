@@ -205,8 +205,9 @@
               "settings": {
                 "label": "Send",
                 "style_class": "button",
-                "width": "fit-content",
-                "custom_width": 100,
+                "button_corner_radius": 24,
+                "width": "custom",
+                "custom_width": 5,
                 "width_mobile": "fit-content",
                 "custom_width_mobile": 100
               },
