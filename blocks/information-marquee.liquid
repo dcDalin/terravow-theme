@@ -1,0 +1,388 @@
+{% doc %}
+  Renders an information marquee with clickable items that reveal details.
+
+  @example
+  {% content_for 'block', type: 'information-marquee', id: 'info-marquee' %}
+{% enddoc %}
+
+<div
+  class="information-marquee"
+  data-marquee-speed="{{ block.settings.marquee_speed }}"
+  {{ block.shopify_attributes }}
+>
+  {% if block.settings.title != blank %}
+    <h3 class="information-marquee__title">{{ block.settings.title }}</h3>
+  {% endif %}
+
+  <div class="information-marquee__container">
+    <div class="information-marquee__track" data-marquee-track>
+      {% for i in (1..3) %}
+        <div class="information-marquee__content">
+          {% for item in (1..5) %}
+            {% liquid
+              assign item_title_key = 'item_' | append: item | append: '_title'
+              assign item_subtitle_key = 'item_' | append: item | append: '_subtitle'
+              assign item_body_key = 'item_' | append: item | append: '_body'
+
+              assign item_title = block.settings[item_title_key]
+              assign item_subtitle = block.settings[item_subtitle_key]
+              assign item_body = block.settings[item_body_key]
+            %}
+
+            {% if item_title != blank %}
+              <button
+                type="button"
+                class="information-marquee__item"
+                data-item-index="{{ item }}"
+                aria-expanded="false"
+                aria-controls="marquee-card-{{ block.id }}-{{ item }}"
+              >
+                {{ item_title }}
+              </button>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="information-marquee__cards">
+    {% for item in (1..5) %}
+      {% liquid
+        assign item_title_key = 'item_' | append: item | append: '_title'
+        assign item_subtitle_key = 'item_' | append: item | append: '_subtitle'
+        assign item_body_key = 'item_' | append: item | append: '_body'
+
+        assign item_title = block.settings[item_title_key]
+        assign item_subtitle = block.settings[item_subtitle_key]
+        assign item_body = block.settings[item_body_key]
+      %}
+
+      {% if item_title != blank %}
+        <div
+          id="marquee-card-{{ block.id }}-{{ item }}"
+          class="information-marquee__card"
+          data-card-index="{{ item }}"
+          hidden
+        >
+          {% if item_subtitle != blank %}
+            <h4 class="information-marquee__card-subtitle">{{ item_subtitle }}</h4>
+          {% endif %}
+          {% if item_body != blank %}
+            <div class="information-marquee__card-body">{{ item_body }}</div>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+
+{% stylesheet %}
+  .information-marquee {
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .information-marquee__title {
+    text-align: center;
+    margin-block-end: var(--gap-lg);
+  }
+
+  .information-marquee__container {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 10%,
+      black 90%,
+      transparent
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 10%,
+      black 90%,
+      transparent
+    );
+  }
+
+  .information-marquee__track {
+    display: flex;
+    gap: var(--gap-md);
+    width: fit-content;
+    animation: marquee-scroll var(--marquee-speed, 20s) linear infinite;
+  }
+
+  .information-marquee__track[data-paused='true'] {
+    animation-play-state: paused;
+  }
+
+  .information-marquee__content {
+    display: flex;
+    gap: var(--gap-md);
+    flex-shrink: 0;
+  }
+
+  .information-marquee__item {
+    padding: var(--padding-md) var(--padding-lg);
+    background-color: var(--color-background);
+    border: var(--style-border-width) solid var(--color-border);
+    border-radius: var(--style-border-radius-buttons-primary);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all var(--animation-speed) var(--animation-easing);
+    font-family: inherit;
+    font-size: var(--font-size--md);
+    color: var(--color-foreground);
+  }
+
+  .information-marquee__item:hover {
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+    transform: translateY(-2px);
+  }
+
+  .information-marquee__item[aria-expanded='true'] {
+    background-color: var(--color-primary-button-background);
+    color: var(--color-primary-button-text);
+    border-color: var(--color-primary-button-background);
+  }
+
+  .information-marquee__cards {
+    margin-block-start: var(--gap-lg);
+  }
+
+  .information-marquee__card {
+    padding: var(--padding-xl);
+    background-color: var(--color-background);
+    border: var(--style-border-width) solid var(--color-border);
+    border-radius: var(--style-border-radius-lg);
+    animation: slide-down 0.3s var(--animation-easing);
+  }
+
+  .information-marquee__card[hidden] {
+    display: none;
+  }
+
+  .information-marquee__card-subtitle {
+    margin-block-end: var(--gap-md);
+    font-size: var(--font-size--lg);
+    font-weight: 600;
+  }
+
+  .information-marquee__card-body {
+    line-height: 1.6;
+  }
+
+  @keyframes marquee-scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(calc(-100% / 3));
+    }
+  }
+
+  @keyframes slide-down {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (function() {
+    const marquee = document.currentScript.closest('.information-marquee');
+    if (!marquee) return;
+
+    const track = marquee.querySelector('[data-marquee-track]');
+    const items = marquee.querySelectorAll('.information-marquee__item');
+    const cards = marquee.querySelectorAll('.information-marquee__card');
+    let currentActiveItem = null;
+
+    items.forEach(item => {
+      item.addEventListener('click', (e) => {
+        const itemIndex = e.target.dataset.itemIndex;
+        const targetCard = marquee.querySelector(`[data-card-index="${itemIndex}"]`);
+
+        // Pause the marquee
+        track.dataset.paused = 'true';
+
+        // If clicking the same item, close it
+        if (currentActiveItem === item) {
+          item.setAttribute('aria-expanded', 'false');
+          targetCard.hidden = true;
+          track.dataset.paused = 'false';
+          currentActiveItem = null;
+          return;
+        }
+
+        // Close all other items
+        items.forEach(i => i.setAttribute('aria-expanded', 'false'));
+        cards.forEach(c => c.hidden = true);
+
+        // Open the clicked item
+        item.setAttribute('aria-expanded', 'true');
+        targetCard.hidden = false;
+        currentActiveItem = item;
+      });
+    });
+
+    // Optional: Resume marquee when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!marquee.contains(e.target)) {
+        items.forEach(i => i.setAttribute('aria-expanded', 'false'));
+        cards.forEach(c => c.hidden = true);
+        track.dataset.paused = 'false';
+        currentActiveItem = null;
+      }
+    });
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "t:names.information_marquee",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:settings.title",
+      "default": "Product Information"
+    },
+    {
+      "type": "range",
+      "id": "marquee_speed",
+      "label": "t:settings.marquee_speed",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "s",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "t:content.item_1"
+    },
+    {
+      "type": "text",
+      "id": "item_1_title",
+      "label": "t:settings.title",
+      "default": "Free Shipping"
+    },
+    {
+      "type": "text",
+      "id": "item_1_subtitle",
+      "label": "t:settings.subtitle",
+      "default": "Fast & Free Delivery"
+    },
+    {
+      "type": "richtext",
+      "id": "item_1_body",
+      "label": "t:settings.body",
+      "default": "<p>Enjoy free shipping on all orders over $50. We deliver worldwide with tracking.</p>"
+    },
+    {
+      "type": "header",
+      "content": "t:content.item_2"
+    },
+    {
+      "type": "text",
+      "id": "item_2_title",
+      "label": "t:settings.title",
+      "default": "30-Day Returns"
+    },
+    {
+      "type": "text",
+      "id": "item_2_subtitle",
+      "label": "t:settings.subtitle",
+      "default": "Hassle-Free Returns"
+    },
+    {
+      "type": "richtext",
+      "id": "item_2_body",
+      "label": "t:settings.body",
+      "default": "<p>Not satisfied? Return your purchase within 30 days for a full refund.</p>"
+    },
+    {
+      "type": "header",
+      "content": "t:content.item_3"
+    },
+    {
+      "type": "text",
+      "id": "item_3_title",
+      "label": "t:settings.title",
+      "default": "Premium Quality"
+    },
+    {
+      "type": "text",
+      "id": "item_3_subtitle",
+      "label": "t:settings.subtitle",
+      "default": "High-Quality Materials"
+    },
+    {
+      "type": "richtext",
+      "id": "item_3_body",
+      "label": "t:settings.body",
+      "default": "<p>Crafted from the finest materials with attention to every detail.</p>"
+    },
+    {
+      "type": "header",
+      "content": "t:content.item_4"
+    },
+    {
+      "type": "text",
+      "id": "item_4_title",
+      "label": "t:settings.title",
+      "default": "Secure Payment"
+    },
+    {
+      "type": "text",
+      "id": "item_4_subtitle",
+      "label": "t:settings.subtitle",
+      "default": "Safe & Secure Checkout"
+    },
+    {
+      "type": "richtext",
+      "id": "item_4_body",
+      "label": "t:settings.body",
+      "default": "<p>Your payment information is encrypted and secure with our trusted payment partners.</p>"
+    },
+    {
+      "type": "header",
+      "content": "t:content.item_5"
+    },
+    {
+      "type": "text",
+      "id": "item_5_title",
+      "label": "t:settings.title",
+      "default": "Customer Support"
+    },
+    {
+      "type": "text",
+      "id": "item_5_subtitle",
+      "label": "t:settings.subtitle",
+      "default": "24/7 Support Available"
+    },
+    {
+      "type": "richtext",
+      "id": "item_5_body",
+      "label": "t:settings.body",
+      "default": "<p>Our dedicated support team is always here to help you with any questions.</p>"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.information_marquee",
+      "category": "t:categories.basic"
+    }
+  ]
+}
+{% endschema %}
