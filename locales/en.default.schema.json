@@ -920,6 +920,7 @@
     "image_opacity": "Image opacity",
     "image_position": "Image position",
     "image_ratio": "Image ratio",
+    "input_corner_radius": "Input corner radius",
     "inherit_color_scheme": "Inherit color scheme",
     "inventory_threshold": "Low stock threshold",
     "inverse": "Inverse",

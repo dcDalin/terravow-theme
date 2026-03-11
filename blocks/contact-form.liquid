@@ -13,6 +13,7 @@
   style="
     {% render 'spacing-style', settings: block.settings %}
     {% render 'size-style', settings: block.settings %}
+    --input-corner-radius: {{ block.settings.input_corner_radius }}px;
   "
   {{ block.shopify_attributes }}
 >
@@ -152,7 +153,7 @@
     color: var(--color-input-text);
     background-color: var(--color-input-background);
     padding: var(--padding-lg) var(--padding-xl);
-    border-radius: var(--style-border-radius-inputs);
+    border-radius: var(--input-corner-radius, var(--style-border-radius-inputs));
     border: var(--style-border-width-inputs) solid var(--color-input-border);
     -webkit-font-smoothing: antialiased;
   }
@@ -241,6 +242,16 @@
       "label": "t:settings.color_scheme",
       "default": "scheme-1",
       "visible_if": "{{ block.settings.inherit_color_scheme == false }}"
+    },
+    {
+      "type": "range",
+      "id": "input_corner_radius",
+      "label": "t:settings.input_corner_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 8
     },
     {
       "type": "header",
