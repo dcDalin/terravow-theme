@@ -3,7 +3,10 @@
 <button
   type="submit"
   class="button submit-button size-style {{ block_settings.style_class }}"
-  style="{% render 'size-style', settings: block_settings %}"
+  style="
+    {% render 'size-style', settings: block_settings %}
+    --button-corner-radius: {{ block_settings.button_corner_radius }}px;
+  "
   {{ block.shopify_attributes }}
 >
   {{ block_settings.label }}
@@ -12,6 +15,14 @@
 {% stylesheet %}
   .submit-button {
     min-width: max-content;
+  }
+
+  .submit-button.button {
+    border-radius: var(--button-corner-radius, var(--style-border-radius-buttons-primary));
+  }
+
+  .submit-button.button-secondary {
+    border-radius: var(--button-corner-radius, var(--style-border-radius-buttons-secondary));
   }
 {% endstylesheet %}
 
@@ -41,6 +52,16 @@
         }
       ],
       "default": "button"
+    },
+    {
+      "type": "range",
+      "id": "button_corner_radius",
+      "label": "t:settings.button_corner_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 8
     },
     {
       "type": "header",
