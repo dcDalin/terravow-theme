@@ -192,6 +192,7 @@
             "custom_width_mobile": 100,
             "inherit_color_scheme": true,
             "color_scheme": "",
+            "input_corner_radius": 33,
             "padding-block-start": 0,
             "padding-block-end": 0,
             "padding-inline-start": 0,
