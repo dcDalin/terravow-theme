@@ -116,7 +116,7 @@
   }
 
   .information-marquee__track[data-paused='true'] {
-    animation-play-state: paused;
+    animation-play-state: paused !important;
   }
 
   .information-marquee__content {
@@ -198,53 +198,83 @@
 {% endstylesheet %}
 
 {% javascript %}
-  (function() {
-    const marquee = document.currentScript.closest('.information-marquee');
-    if (!marquee) return;
+  class InformationMarquee {
+    constructor(element) {
+      this.marquee = element;
+      this.track = this.marquee.querySelector('[data-marquee-track]');
+      this.items = this.marquee.querySelectorAll('.information-marquee__item');
+      this.cards = this.marquee.querySelectorAll('.information-marquee__card');
+      this.currentActiveItem = null;
 
-    const track = marquee.querySelector('[data-marquee-track]');
-    const items = marquee.querySelectorAll('.information-marquee__item');
-    const cards = marquee.querySelectorAll('.information-marquee__card');
-    let currentActiveItem = null;
+      this.init();
+    }
 
-    items.forEach(item => {
-      item.addEventListener('click', (e) => {
-        const itemIndex = e.target.dataset.itemIndex;
-        const targetCard = marquee.querySelector(`[data-card-index="${itemIndex}"]`);
-
-        // Pause the marquee
-        track.dataset.paused = 'true';
-
-        // If clicking the same item, close it
-        if (currentActiveItem === item) {
-          item.setAttribute('aria-expanded', 'false');
-          targetCard.hidden = true;
-          track.dataset.paused = 'false';
-          currentActiveItem = null;
-          return;
-        }
-
-        // Close all other items
-        items.forEach(i => i.setAttribute('aria-expanded', 'false'));
-        cards.forEach(c => c.hidden = true);
-
-        // Open the clicked item
-        item.setAttribute('aria-expanded', 'true');
-        targetCard.hidden = false;
-        currentActiveItem = item;
+    init() {
+      this.items.forEach(item => {
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          this.handleItemClick(e.currentTarget);
+        });
       });
-    });
 
-    // Optional: Resume marquee when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!marquee.contains(e.target)) {
-        items.forEach(i => i.setAttribute('aria-expanded', 'false'));
-        cards.forEach(c => c.hidden = true);
-        track.dataset.paused = 'false';
-        currentActiveItem = null;
+      // Resume marquee when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!this.marquee.contains(e.target)) {
+          this.closeAll();
+        }
+      });
+    }
+
+    handleItemClick(item) {
+      const itemIndex = item.dataset.itemIndex;
+      const targetCard = this.marquee.querySelector(`[data-card-index="${itemIndex}"]`);
+
+      if (!targetCard) return;
+
+      // Pause the marquee
+      this.track.setAttribute('data-paused', 'true');
+
+      // If clicking the same item, close it
+      if (this.currentActiveItem === item) {
+        this.closeAll();
+        return;
+      }
+
+      // Close all other items
+      this.items.forEach(i => i.setAttribute('aria-expanded', 'false'));
+      this.cards.forEach(c => c.hidden = true);
+
+      // Open the clicked item
+      item.setAttribute('aria-expanded', 'true');
+      targetCard.hidden = false;
+      this.currentActiveItem = item;
+    }
+
+    closeAll() {
+      this.items.forEach(i => i.setAttribute('aria-expanded', 'false'));
+      this.cards.forEach(c => c.hidden = true);
+      this.track.setAttribute('data-paused', 'false');
+      this.currentActiveItem = null;
+    }
+  }
+
+  // Initialize all marquees on the page
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.information-marquee').forEach(marquee => {
+      new InformationMarquee(marquee);
+    });
+  });
+
+  // Also initialize if DOM is already loaded (for dynamic content)
+  if (document.readyState === 'interactive' || document.readyState === 'complete') {
+    document.querySelectorAll('.information-marquee').forEach(marquee => {
+      if (!marquee.hasAttribute('data-marquee-initialized')) {
+        marquee.setAttribute('data-marquee-initialized', 'true');
+        new InformationMarquee(marquee);
       }
     });
-  })();
+  }
 {% endjavascript %}
 
 {% schema %}
