@@ -68,11 +68,27 @@
             "padding-inline-end": 0
           },
           "blocks": {
-            "custom_liquid_NbWYft": {
-              "type": "custom-liquid",
-              "name": "t:names.custom_liquid",
+            "information_marquee_DhBHVi": {
+              "type": "information-marquee",
+              "name": "t:names.information_marquee",
               "settings": {
-                "custom_liquid": ""
+                "title": "",
+                "marquee_speed": 40,
+                "item_1_title": "Free Shipping",
+                "item_1_subtitle": "Fast & Free Delivery",
+                "item_1_body": "<p>Enjoy free shipping on all orders over $50. We deliver worldwide with tracking.</p>",
+                "item_2_title": "30-Day Returns",
+                "item_2_subtitle": "Hassle-Free Returns",
+                "item_2_body": "<p>Not satisfied? Return your purchase within 30 days for a full refund.</p>",
+                "item_3_title": "Premium Quality",
+                "item_3_subtitle": "High-Quality Materials",
+                "item_3_body": "<p>Crafted from the finest materials with attention to every detail.</p>",
+                "item_4_title": "Secure Payment",
+                "item_4_subtitle": "Safe & Secure Checkout",
+                "item_4_body": "<p>Your payment information is encrypted and secure with our trusted payment partners.</p>",
+                "item_5_title": "Customer Support",
+                "item_5_subtitle": "24/7 Support Available",
+                "item_5_body": "<p>Our dedicated support team is always here to help you with any questions.</p>"
               },
               "blocks": {}
             },
@@ -258,7 +274,7 @@
             }
           },
           "block_order": [
-            "custom_liquid_NbWYft",
+            "information_marquee_DhBHVi",
             "group_icgrde",
             "text_aEtTtq",
             "divider_VJhene",
