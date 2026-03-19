@@ -144,8 +144,6 @@
       "name": "t:names.custom_collection_grid",
       "settings": {
         "collection_list": [
-          "frontpage",
-          "some-draft-collection",
           "main-collection"
         ],
         "button_label": "Shop Now",
