@@ -14,7 +14,7 @@
     assign show_nav_mobile = true
   endif
 
-  if max_items > 3
+  if max_items > 4
     assign show_nav_desktop = true
   endif
 %}
@@ -39,7 +39,7 @@
       {%- content_for 'blocks' -%}
     </div>
 
-    <div class="custom-collection-grid__grid">
+    <div class="custom-collection-grid__grid" data-grid-carousel>
       {% if section_collections == null %}
         {% for i in (1..max_items) %}
           {% assign section_collections = section_collections | append: ', ' %}
@@ -48,7 +48,7 @@
       {% endif %}
 
       {% for collection in section_collections limit: max_items %}
-        <div class="custom-collection-card">
+        <div class="custom-collection-card" data-card-index="{{ forloop.index0 }}">
           <div class="custom-collection-card__image-carousel" data-carousel>
             <div class="carousel-track" data-carousel-track>
               {% if collection %}
@@ -100,7 +100,7 @@
 
           <div class="custom-collection-card__content">
             <div class="custom-collection-card__rating">
-              <span class="rating-stars">★★★★★</span>
+              <span class="rating-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
               <span class="rating-value">({{ section.settings.default_rating }})</span>
             </div>
 
@@ -211,7 +211,7 @@
 
   @media (min-width: 768px) {
     .custom-collection-grid__grid {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 24px;
     }
   }
@@ -223,6 +223,11 @@
     border-radius: 8px;
     overflow: hidden;
     background: white;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .custom-collection-card.hidden {
+    display: none;
   }
 
   .custom-collection-card__image-carousel {
@@ -454,6 +459,12 @@
     transform: scale(0.95);
   }
 
+  .nav-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
   .nav-button svg {
     width: 24px;
     height: 24px;
@@ -462,9 +473,10 @@
 
 {% javascript %}
   document.addEventListener('DOMContentLoaded', function() {
-    const carousels = document.querySelectorAll('[data-carousel]');
+    // Image carousel functionality for individual collection cards
+    const imageCarousels = document.querySelectorAll('[data-carousel]');
 
-    carousels.forEach(carousel => {
+    imageCarousels.forEach(carousel => {
       const track = carousel.querySelector('[data-carousel-track]');
       const slides = carousel.querySelectorAll('.carousel-slide');
       const dots = carousel.querySelectorAll('.carousel-dot');
@@ -517,6 +529,90 @@
         }
       });
     });
+
+    // Grid carousel pagination functionality
+    const gridCarousel = document.querySelector('[data-grid-carousel]');
+    if (!gridCarousel) return;
+
+    const navigation = gridCarousel.closest('.custom-collection-grid__container').querySelector('.custom-collection-grid__navigation');
+    if (!navigation) return;
+
+    const prevButton = navigation.querySelector('.nav-button--prev');
+    const nextButton = navigation.querySelector('.nav-button--next');
+    const cards = Array.from(gridCarousel.querySelectorAll('.custom-collection-card'));
+
+    let currentPage = 0;
+    let itemsPerPage = getItemsPerPage();
+
+    function getItemsPerPage() {
+      return window.innerWidth >= 768 ? 4 : 2;
+    }
+
+    function getTotalPages() {
+      return Math.ceil(cards.length / itemsPerPage);
+    }
+
+    function updateVisibleCards() {
+      const startIndex = currentPage * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+
+      cards.forEach((card, index) => {
+        if (index >= startIndex && index < endIndex) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+
+      updateNavigationButtons();
+    }
+
+    function updateNavigationButtons() {
+      const totalPages = getTotalPages();
+
+      if (prevButton) {
+        prevButton.disabled = currentPage === 0;
+      }
+
+      if (nextButton) {
+        nextButton.disabled = currentPage >= totalPages - 1;
+      }
+    }
+
+    function goToPage(page) {
+      const totalPages = getTotalPages();
+      currentPage = Math.max(0, Math.min(page, totalPages - 1));
+      updateVisibleCards();
+    }
+
+    if (prevButton) {
+      prevButton.addEventListener('click', () => {
+        goToPage(currentPage - 1);
+      });
+    }
+
+    if (nextButton) {
+      nextButton.addEventListener('click', () => {
+        goToPage(currentPage + 1);
+      });
+    }
+
+    // Handle window resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        const newItemsPerPage = getItemsPerPage();
+        if (newItemsPerPage !== itemsPerPage) {
+          itemsPerPage = newItemsPerPage;
+          currentPage = 0;
+          updateVisibleCards();
+        }
+      }, 250);
+    });
+
+    // Initialize
+    updateVisibleCards();
   });
 {% endjavascript %}
 
