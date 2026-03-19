@@ -144,7 +144,11 @@
       "name": "t:names.custom_collection_grid",
       "settings": {
         "collection_list": [
-          "main-collection"
+          "main-collection",
+          "collection-2",
+          "collection-3",
+          "collection-4",
+          "collection-5"
         ],
         "button_label": "Shop Now",
         "default_rating": "4.8",
