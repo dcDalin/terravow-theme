@@ -145,7 +145,8 @@
       "settings": {
         "collection_list": [
           "frontpage",
-          "some-draft-collection"
+          "some-draft-collection",
+          "main-collection"
         ],
         "button_label": "Shop Now",
         "default_rating": "4.8",
