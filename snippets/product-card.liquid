@@ -52,13 +52,6 @@
   if product.id == empty or product == blank
     assign onboarding = true
   endif
-
-  assign enable_collection_grid_style = block_settings.enable_collection_grid_style | default: false
-
-  assign media_count = product.media.size
-  if media_count > 5
-    assign media_count = 5
-  endif
 %}
 
 <product-card
@@ -98,7 +91,6 @@
       border-style
       gap-style
       {% if block_settings.inherit_color_scheme == false %} color-{{ block_settings.color_scheme }}{% endif %}
-      {% if enable_collection_grid_style %} product-card--collection-grid-style{% endif %}
     "
     style="
       {% render 'border-override', settings: block_settings %}
@@ -113,51 +105,8 @@
       {% if block_settings.padding-block-start > 0 %}--zoom-out-padding-block-start: min(var(--padding-xs), {{ block_settings.padding-block-start | times: 0.7}}px);{% endif %}
       {% if block_settings.padding-block-end > 0 %}--zoom-out-padding-block-end: min(var(--padding-xs), {{ block_settings.padding-block-end | times: 0.7}}px);{% endif %}
     "
-    {% if enable_collection_grid_style %}
-      data-product-card-carousel
-      data-enable-hover="{{ block_settings.enable_hover_carousel }}"
-    {% endif %}
   >
     {{ children }}
-
-    {% if enable_collection_grid_style %}
-      {%- comment -%} Carousel Dots - Only show if there are multiple media items {%- endcomment -%}
-      {% if product and product != blank and media_count > 1 %}
-        <div class="product-card-carousel-dots" data-product-card-carousel-dots>
-          {% for i in (1..media_count) %}
-            <button
-              class="product-card-carousel-dot {% if forloop.first %}active{% endif %}"
-              data-slide="{{ forloop.index0 }}"
-              aria-label="Go to slide {{ forloop.index }}"
-            ></button>
-          {% endfor %}
-        </div>
-      {% endif %}
-
-      {%- comment -%} Additional Info Section {%- endcomment -%}
-      <div class="product-card__grid-info">
-        {%- comment -%} Star Rating {%- endcomment -%}
-        {% if block_settings.show_rating %}
-          <div class="product-card__rating">
-            <span class="rating-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
-            <span class="rating-value">({{ block_settings.default_rating }})</span>
-          </div>
-        {% endif %}
-
-        {%- comment -%} CTA Button {%- endcomment -%}
-        <a
-          href="{% unless onboarding %}{{ variant_to_link.url }}{% else %}#{% endunless %}"
-          class="product-card__grid-button"
-        >
-          <svg class="button-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="9" cy="21" r="1"></circle>
-            <circle cx="20" cy="21" r="1"></circle>
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-          </svg>
-          <span>{{ block_settings.button_label }}</span>
-        </a>
-      </div>
-    {% endif %}
   </div>
 </product-card>
 
@@ -171,181 +120,4 @@
       display: none;
     }
   }
-
-  /* Collection Grid Style */
-  .product-card--collection-grid-style {
-    position: relative;
-  }
-
-  .product-card-carousel-dots {
-    position: absolute;
-    bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 8px;
-    z-index: 10;
-    pointer-events: auto;
-  }
-
-  .product-card-carousel-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.6);
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s;
-    padding: 0;
-  }
-
-  .product-card-carousel-dot:hover {
-    background: rgba(255, 255, 255, 0.9);
-    transform: scale(1.2);
-  }
-
-  .product-card-carousel-dot.active {
-    background: white;
-    width: 24px;
-    border-radius: 4px;
-  }
-
-  .product-card__grid-info {
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .product-card__rating {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-  }
-
-  .rating-stars {
-    color: #fbbf24;
-    letter-spacing: 2px;
-  }
-
-  .rating-value {
-    color: #666;
-    font-weight: 500;
-  }
-
-  .product-card__grid-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 6px 20px;
-    background: #111;
-    color: white;
-    text-align: center;
-    text-decoration: none;
-    border-radius: 999px;
-    font-weight: 500;
-    font-size: 13px;
-    border: 2px solid #111;
-    transition: all 0.2s;
-    margin-top: 4px;
-  }
-
-  .product-card__grid-button .button-icon {
-    display: none;
-    width: 18px;
-    height: 18px;
-    transition: transform 0.2s;
-    flex-shrink: 0;
-  }
-
-  @media (min-width: 768px) {
-    .product-card__grid-button {
-      padding: 8px 24px;
-      font-size: 14px;
-    }
-
-    .product-card__grid-button .button-icon {
-      display: block;
-    }
-  }
-
-  .product-card__grid-button:hover {
-    background: white;
-    color: #111;
-  }
-
-  .product-card__grid-button:hover .button-icon {
-    transform: translateX(-4px);
-  }
 {% endstylesheet %}
-
-{% javascript %}
-  document.addEventListener('DOMContentLoaded', function() {
-    const productCarousels = document.querySelectorAll('[data-product-card-carousel]');
-
-    productCarousels.forEach(carousel => {
-      const slideshowComponent = carousel.querySelector('slideshow-component');
-      if (!slideshowComponent) return;
-
-      const slides = slideshowComponent.querySelectorAll('slideshow-slide:not([hidden])');
-      const dotsContainer = carousel.querySelector('.product-card-carousel-dots');
-      const enableHover = carousel.getAttribute('data-enable-hover') === 'true';
-
-      if (slides.length <= 1 || !dotsContainer) return;
-
-      // Move dots container into the card-gallery for proper positioning
-      const cardGallery = carousel.querySelector('.card-gallery');
-      if (cardGallery) {
-        cardGallery.appendChild(dotsContainer);
-      }
-
-      const dots = dotsContainer.querySelectorAll('.product-card-carousel-dot');
-
-      let currentSlide = 0;
-      let autoplayInterval = null;
-
-      function goToSlide(index) {
-        if (dots[currentSlide]) {
-          dots[currentSlide].classList.remove('active');
-        }
-
-        currentSlide = index;
-
-        // Use the slideshow component's navigation method if available
-        if (slideshowComponent && slideshowComponent.select) {
-          slideshowComponent.select(index);
-        }
-
-        if (dots[currentSlide]) {
-          dots[currentSlide].classList.add('active');
-        }
-      }
-
-      dots.forEach((dot, index) => {
-        dot.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          goToSlide(index);
-        });
-      });
-
-      if (enableHover) {
-        carousel.addEventListener('mouseenter', () => {
-          autoplayInterval = setInterval(() => {
-            const nextSlide = (currentSlide + 1) % slides.length;
-            goToSlide(nextSlide);
-          }, 2000);
-        });
-
-        carousel.addEventListener('mouseleave', () => {
-          if (autoplayInterval) {
-            clearInterval(autoplayInterval);
-            autoplayInterval = null;
-          }
-        });
-      }
-    });
-  });
-{% endjavascript %}

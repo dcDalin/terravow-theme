@@ -6,6 +6,7 @@
   @param [children] - Additional content rendered below the card gallery
   @param [section] - The section object the snippet is rendered in
   @param [block] - The block object the snippet is rendered in
+  @param [enable_collection_grid_style] - Boolean to enable collection grid style (hides arrows, shows dots)
 {%- enddoc -%}
 
 {% liquid
@@ -65,14 +66,14 @@
 
 <div
   ref="cardGallery"
-  class="card-gallery card-gallery-{{ block.id }} spacing-style border-style{% if has_badges %} card-gallery--badge-{{ badge_position }}{% endif %}"
+  class="card-gallery card-gallery-{{ block.id }} spacing-style border-style{% if has_badges %} card-gallery--badge-{{ badge_position }}{% endif %}{% if enable_collection_grid_style %} card-gallery--collection-grid-style{% endif %}"
   style="
     {% render 'border-override', settings: block_settings %}
     {% render 'spacing-style', settings: block_settings %}
     --gallery-aspect-ratio: {{ ratio }};
   "
   data-product-id="{{ product.id }}"
-  {% if settings.show_second_image_on_hover %}
+  {% if settings.show_second_image_on_hover and enable_collection_grid_style == false %}
     on:pointerenter="/previewImage"
     on:pointerleave="/resetImage"
   {% endif %}
@@ -96,6 +97,11 @@
 
       if product.media.size > 2 and generic_media_size > 0
         assign show_arrows = true
+      endif
+
+      # Hide arrows when collection grid style is enabled
+      if enable_collection_grid_style
+        assign show_arrows = false
       endif
 
       # Don't overfetch media if we don't need to
@@ -364,5 +370,14 @@
 
   [product-grid-view='zoom-out'] .card-gallery .slideshow-control {
     min-width: auto;
+  }
+
+  /* Hide arrows when collection grid style is enabled */
+  .card-gallery--collection-grid-style slideshow-arrows {
+    display: none;
+  }
+
+  .card-gallery--collection-grid-style .slideshow-control {
+    display: none;
   }
 {% endstylesheet %}

@@ -67,43 +67,6 @@
     },
     {
       "type": "checkbox",
-      "id": "enable_collection_grid_style",
-      "label": "Enable collection grid style",
-      "default": false,
-      "info": "Shows carousel dots, star rating, and view button with cart icon"
-    },
-    {
-      "type": "text",
-      "id": "button_label",
-      "label": "Button label",
-      "default": "View Product",
-      "visible_if": "{{ block.settings.enable_collection_grid_style }}"
-    },
-    {
-      "type": "text",
-      "id": "default_rating",
-      "label": "Default rating",
-      "default": "4.7",
-      "info": "Default star rating value",
-      "visible_if": "{{ block.settings.enable_collection_grid_style }}"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_rating",
-      "label": "Show star rating",
-      "default": true,
-      "visible_if": "{{ block.settings.enable_collection_grid_style }}"
-    },
-    {
-      "type": "checkbox",
-      "id": "enable_hover_carousel",
-      "label": "Enable hover carousel",
-      "default": true,
-      "info": "Automatically cycle through images on hover",
-      "visible_if": "{{ block.settings.enable_collection_grid_style }}"
-    },
-    {
-      "type": "checkbox",
       "id": "inherit_color_scheme",
       "label": "t:settings.inherit_color_scheme",
       "default": true

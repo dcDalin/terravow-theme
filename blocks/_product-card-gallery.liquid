@@ -1,17 +1,10 @@
 
 
 {% assign product = closest.product %}
+{% assign block_settings = block.settings %}
 
 {% liquid
-  # Try to get parent product card block settings
-  assign parent_block = closest.block
-  assign enable_collection_grid_style = false
-  assign enable_hover_carousel = true
-
-  if parent_block.settings.enable_collection_grid_style
-    assign enable_collection_grid_style = true
-    assign enable_hover_carousel = parent_block.settings.enable_hover_carousel
-  endif
+  assign enable_collection_grid_style = block_settings.enable_collection_grid_style | default: false
 
   assign media_count = product.media.size
   if media_count > 5
@@ -43,13 +36,16 @@
         </div>
       {%- endif -%}
     </div>
-    {%  if settings.quick_add or settings.mobile_quick_add %}
-      {% render 'quick-add', product: product, section_id: section.id %}
-    {% endif %}
+    {%- comment -%} Hide quick-add when collection grid style is enabled {%- endcomment -%}
+    {% unless enable_collection_grid_style %}
+      {%  if settings.quick_add or settings.mobile_quick_add %}
+        {% render 'quick-add', product: product, section_id: section.id %}
+      {% endif %}
+    {% endunless %}
 
     {%- comment -%} Carousel Dots for Collection Grid Style {%- endcomment -%}
     {% if enable_collection_grid_style and media_count > 1 %}
-      <div class="product-card-gallery-carousel-dots" data-product-card-gallery-carousel-dots data-enable-hover="{{ enable_hover_carousel }}">
+      <div class="product-card-gallery-carousel-dots" data-product-card-gallery-carousel-dots data-enable-hover="true">
         {% for i in (1..media_count) %}
           <button
             class="product-card-gallery-carousel-dot {% if forloop.first %}active{% endif %}"
@@ -62,7 +58,7 @@
   {% endunless %}
 {% endcapture %}
 
-{% render 'card-gallery', children: children %}
+{% render 'card-gallery', children: children, enable_collection_grid_style: enable_collection_grid_style %}
 
 {% # Title and price for the zoomed out grid view %}
 <div class="product-grid-view-zoom-out--details">
@@ -226,6 +222,13 @@
     {
       "type": "paragraph",
       "content": "t:content.resource_reference_product_media"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_collection_grid_style",
+      "label": "Enable collection grid style",
+      "default": false,
+      "info": "Shows carousel dots on hover. Hides quick-add button and arrow controls."
     },
     {
       "type": "select",
