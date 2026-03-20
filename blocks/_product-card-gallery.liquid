@@ -2,6 +2,23 @@
 
 {% assign product = closest.product %}
 
+{% liquid
+  # Try to get parent product card block settings
+  assign parent_block = closest.block
+  assign enable_collection_grid_style = false
+  assign enable_hover_carousel = true
+
+  if parent_block.settings.enable_collection_grid_style
+    assign enable_collection_grid_style = true
+    assign enable_hover_carousel = parent_block.settings.enable_hover_carousel
+  endif
+
+  assign media_count = product.media.size
+  if media_count > 5
+    assign media_count = 5
+  endif
+%}
+
 {% capture children %}
   {% unless product == blank %}
     <div
@@ -28,6 +45,19 @@
     </div>
     {%  if settings.quick_add or settings.mobile_quick_add %}
       {% render 'quick-add', product: product, section_id: section.id %}
+    {% endif %}
+
+    {%- comment -%} Carousel Dots for Collection Grid Style {%- endcomment -%}
+    {% if enable_collection_grid_style and media_count > 1 %}
+      <div class="product-card-gallery-carousel-dots" data-product-card-gallery-carousel-dots data-enable-hover="{{ enable_hover_carousel }}">
+        {% for i in (1..media_count) %}
+          <button
+            class="product-card-gallery-carousel-dot {% if forloop.first %}active{% endif %}"
+            data-slide="{{ forloop.index0 }}"
+            aria-label="Go to slide {{ forloop.index }}"
+          ></button>
+        {% endfor %}
+      </div>
     {% endif %}
   {% endunless %}
 {% endcapture %}
@@ -86,7 +116,107 @@
     padding-block: var(--badge-rectangle-padding-block);
     padding-inline: var(--badge-rectangle-padding-inline);
   }
+
+  /* Carousel Dots for Collection Grid Style */
+  .product-card-gallery-carousel-dots {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+    pointer-events: auto;
+  }
+
+  .product-card-gallery-carousel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 0;
+  }
+
+  .product-card-gallery-carousel-dot:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: scale(1.2);
+  }
+
+  .product-card-gallery-carousel-dot.active {
+    background: white;
+    width: 24px;
+    border-radius: 4px;
+  }
 {% endstylesheet %}
+
+{% javascript %}
+  document.addEventListener('DOMContentLoaded', function() {
+    const carouselDotContainers = document.querySelectorAll('[data-product-card-gallery-carousel-dots]');
+
+    carouselDotContainers.forEach(dotsContainer => {
+      const cardGallery = dotsContainer.closest('.card-gallery');
+      if (!cardGallery) return;
+
+      const slideshowComponent = cardGallery.querySelector('slideshow-component');
+      if (!slideshowComponent) return;
+
+      const slides = slideshowComponent.querySelectorAll('slideshow-slide:not([hidden])');
+      const dots = dotsContainer.querySelectorAll('.product-card-gallery-carousel-dot');
+      const enableHover = dotsContainer.getAttribute('data-enable-hover') === 'true';
+
+      if (slides.length <= 1) return;
+
+      let currentSlide = 0;
+      let autoplayInterval = null;
+
+      function goToSlide(index) {
+        if (dots[currentSlide]) {
+          dots[currentSlide].classList.remove('active');
+        }
+
+        currentSlide = index;
+
+        // Use the slideshow component's navigation method if available
+        if (slideshowComponent && slideshowComponent.select) {
+          slideshowComponent.select(index);
+        }
+
+        if (dots[currentSlide]) {
+          dots[currentSlide].classList.add('active');
+        }
+      }
+
+      // Handle dot clicks
+      dots.forEach((dot, index) => {
+        dot.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          goToSlide(index);
+        });
+      });
+
+      // Handle hover auto-play
+      if (enableHover) {
+        cardGallery.addEventListener('mouseenter', () => {
+          autoplayInterval = setInterval(() => {
+            const nextSlide = (currentSlide + 1) % slides.length;
+            goToSlide(nextSlide);
+          }, 2000);
+        });
+
+        cardGallery.addEventListener('mouseleave', () => {
+          if (autoplayInterval) {
+            clearInterval(autoplayInterval);
+            autoplayInterval = null;
+          }
+        });
+      }
+    });
+  });
+{% endjavascript %}
 
 {% schema %}
 {
