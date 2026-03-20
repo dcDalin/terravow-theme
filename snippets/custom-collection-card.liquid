@@ -1,0 +1,420 @@
+{%- doc -%}
+  Custom collection card with image carousel, dots navigation, hover functionality, star ratings, and CTA button.
+  Displays products from a collection in a carousel format.
+
+  @param {object} collection - The collection object
+  @param {object} [block] - The block object
+{%- enddoc -%}
+
+{% assign block_settings = block.settings %}
+
+{% liquid
+  assign onboarding = false
+  if collection == blank
+    assign onboarding = true
+  endif
+
+  assign temp_collection = collections[collection.handle]
+  assign product_count = 0
+  assign max_products = block_settings.max_products | default: 5
+%}
+
+<div
+  class="custom-collection-card size-style"
+  style="{% render 'size-style', settings: block_settings %}"
+  data-collection-id="{{ collection.id }}"
+  id="custom-collection-card-{{ block.id }}"
+  {{ block.shopify_attributes }}
+  {% if onboarding %}
+    data-placeholder="true"
+  {% endif %}
+>
+  <div
+    class="
+      custom-collection-card__content
+      layout-panel-flex
+      layout-panel-flex--column
+      spacing-style
+      border-style
+    "
+    style="
+      {% render 'border-override', settings: block_settings %}
+      {% render 'layout-panel-style', settings: block_settings %}
+      {% render 'spacing-style', settings: block_settings %}
+    "
+  >
+    {%- comment -%} Image Carousel with Dots {%- endcomment -%}
+    <div class="custom-collection-card__image-carousel" data-custom-collection-carousel data-enable-hover="{{ block_settings.enable_hover_carousel }}">
+      <div class="custom-collection-carousel-track" data-custom-collection-carousel-track>
+        {% if collection and collection != blank %}
+          {% for product in temp_collection.products limit: max_products %}
+            {% assign product_count = product_count | plus: 1 %}
+            <div class="custom-collection-carousel-slide {% if forloop.first %}active{% endif %}" data-product-url="{{ product.url }}">
+              {% if product.featured_image %}
+                {{ product.featured_image | image_url: width: 600 | image_tag: loading: 'lazy', alt: product.title }}
+              {% else %}
+                {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+              {% endif %}
+            </div>
+          {% endfor %}
+
+          {% if product_count == 0 %}
+            {% if collection.featured_image %}
+              <div class="custom-collection-carousel-slide active" data-product-url="{{ collection.url }}">
+                {{ collection.featured_image | image_url: width: 600 | image_tag: loading: 'lazy', alt: collection.title }}
+              </div>
+            {% else %}
+              <div class="custom-collection-carousel-slide active" data-product-url="{{ collection.url | default: '#' }}">
+                {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+              </div>
+            {% endif %}
+          {% endif %}
+        {% else %}
+          <div class="custom-collection-carousel-slide active" data-product-url="#">
+            {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+          </div>
+        {% endif %}
+      </div>
+
+      {% if collection and collection != blank and product_count > 1 %}
+        <div class="custom-collection-carousel-dots" data-custom-collection-carousel-dots>
+          {% for i in (1..product_count) %}
+            <button
+              class="custom-collection-carousel-dot {% if forloop.first %}active{% endif %}"
+              data-slide="{{ forloop.index0 }}"
+              aria-label="Go to slide {{ forloop.index }}"
+            ></button>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="custom-collection-card__info">
+      {%- comment -%} Star Rating {%- endcomment -%}
+      {% if block_settings.show_rating %}
+        <div class="custom-collection-card__rating">
+          <span class="rating-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+          <span class="rating-value">({{ block_settings.default_rating }})</span>
+        </div>
+      {% endif %}
+
+      {%- comment -%} Collection Title {%- endcomment -%}
+      <h3 class="custom-collection-card__title">
+        {% if collection and collection != blank %}
+          {{ collection.title }}
+        {% else %}
+          Collection Title
+        {% endif %}
+      </h3>
+
+      {%- comment -%} Price {%- endcomment -%}
+      <div class="custom-collection-card__price">
+        {% if collection and collection != blank %}
+          {% assign first_product = temp_collection.products.first %}
+          {% if first_product %}
+            <span class="price-label">From</span>
+            <span class="price">{{ first_product.price | money }}</span>
+          {% else %}
+            <span class="price-label">From</span>
+            <span class="price">$99.00</span>
+          {% endif %}
+        {% else %}
+          <span class="price-label">From</span>
+          <span class="price">$99.00</span>
+        {% endif %}
+      </div>
+
+      {%- comment -%} CTA Button {%- endcomment -%}
+      {% if block_settings.show_cta_button %}
+        {% liquid
+          if collection and collection != blank
+            assign first_product = temp_collection.products.first
+            if first_product
+              assign button_url = first_product.url
+            else
+              assign button_url = collection.url
+            endif
+          else
+            assign button_url = '#'
+          endif
+        %}
+        <a
+          href="{{ button_url }}"
+          class="custom-collection-card__button"
+          data-product-link
+        >
+          <svg class="button-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          <span>{{ block_settings.button_label }}</span>
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .custom-collection-card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .custom-collection-card__content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: white;
+    transition: all 0.3s ease;
+  }
+
+  .custom-collection-card__image-carousel {
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+
+  .custom-collection-carousel-track {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .custom-collection-carousel-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  .custom-collection-carousel-slide.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .custom-collection-carousel-slide img,
+  .custom-collection-carousel-slide svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .custom-collection-carousel-dots {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+  }
+
+  .custom-collection-carousel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 0;
+  }
+
+  .custom-collection-carousel-dot:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: scale(1.2);
+  }
+
+  .custom-collection-carousel-dot.active {
+    background: white;
+    width: 24px;
+    border-radius: 4px;
+  }
+
+  .custom-collection-card__info {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .custom-collection-card__rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+  }
+
+  .rating-stars {
+    color: #fbbf24;
+    letter-spacing: 2px;
+  }
+
+  .rating-value {
+    color: #666;
+    font-weight: 500;
+  }
+
+  .custom-collection-card__title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1a;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: calc(1.4em * 2);
+    max-height: calc(1.4em * 2);
+  }
+
+  @media (min-width: 768px) {
+    .custom-collection-card__title {
+      font-size: 16px;
+    }
+  }
+
+  .custom-collection-card__price {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    font-size: 17px;
+    font-weight: 700;
+    color: #000;
+  }
+
+  .custom-collection-card__price .price-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+  }
+
+  @media (min-width: 768px) {
+    .custom-collection-card__price {
+      font-size: 18px;
+    }
+
+    .custom-collection-card__price .price-label {
+      font-size: 15px;
+    }
+  }
+
+  .custom-collection-card__button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 20px;
+    background: #111;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 999px;
+    font-weight: 500;
+    font-size: 13px;
+    border: 2px solid #111;
+    transition: all 0.2s;
+    margin-top: 4px;
+  }
+
+  .custom-collection-card__button .button-icon {
+    display: none;
+    width: 18px;
+    height: 18px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  @media (min-width: 768px) {
+    .custom-collection-card__button {
+      padding: 8px 24px;
+      font-size: 14px;
+    }
+
+    .custom-collection-card__button .button-icon {
+      display: block;
+    }
+  }
+
+  .custom-collection-card__button:hover {
+    background: white;
+    color: #111;
+  }
+
+  .custom-collection-card__button:hover .button-icon {
+    transform: translateX(-4px);
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  document.addEventListener('DOMContentLoaded', function() {
+    const imageCarousels = document.querySelectorAll('[data-custom-collection-carousel]');
+
+    imageCarousels.forEach(carousel => {
+      const track = carousel.querySelector('[data-custom-collection-carousel-track]');
+      const slides = carousel.querySelectorAll('.custom-collection-carousel-slide');
+      const dots = carousel.querySelectorAll('.custom-collection-carousel-dot');
+      const productLink = carousel.closest('.custom-collection-card').querySelector('[data-product-link]');
+      const enableHover = carousel.getAttribute('data-enable-hover') === 'true';
+
+      if (slides.length <= 1) return;
+
+      let currentSlide = 0;
+      let autoplayInterval = null;
+
+      function goToSlide(index) {
+        slides[currentSlide].classList.remove('active');
+        if (dots[currentSlide]) {
+          dots[currentSlide].classList.remove('active');
+        }
+
+        currentSlide = index;
+
+        slides[currentSlide].classList.add('active');
+        if (dots[currentSlide]) {
+          dots[currentSlide].classList.add('active');
+        }
+
+        const newUrl = slides[currentSlide].getAttribute('data-product-url');
+        if (productLink && newUrl) {
+          productLink.setAttribute('href', newUrl);
+        }
+      }
+
+      dots.forEach((dot, index) => {
+        dot.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          goToSlide(index);
+        });
+      });
+
+      if (enableHover) {
+        carousel.addEventListener('mouseenter', () => {
+          autoplayInterval = setInterval(() => {
+            const nextSlide = (currentSlide + 1) % slides.length;
+            goToSlide(nextSlide);
+          }, 2000);
+        });
+
+        carousel.addEventListener('mouseleave', () => {
+          if (autoplayInterval) {
+            clearInterval(autoplayInterval);
+            autoplayInterval = null;
+          }
+        });
+      }
+    });
+  });
+{% endjavascript %}
