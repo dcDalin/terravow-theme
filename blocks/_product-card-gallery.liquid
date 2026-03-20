@@ -149,69 +149,117 @@
 {% endstylesheet %}
 
 {% javascript %}
-  document.addEventListener('DOMContentLoaded', function() {
-    const carouselDotContainers = document.querySelectorAll('[data-product-card-gallery-carousel-dots]');
+  (function() {
+    function initCarouselDots() {
+      const carouselDotContainers = document.querySelectorAll('[data-product-card-gallery-carousel-dots]');
 
-    carouselDotContainers.forEach(dotsContainer => {
-      const cardGallery = dotsContainer.closest('.card-gallery');
-      if (!cardGallery) return;
+      carouselDotContainers.forEach(dotsContainer => {
+        // Skip if already initialized
+        if (dotsContainer.dataset.initialized === 'true') return;
+        dotsContainer.dataset.initialized = 'true';
 
-      const slideshowComponent = cardGallery.querySelector('slideshow-component');
-      if (!slideshowComponent) return;
+        const cardGallery = dotsContainer.closest('.card-gallery');
+        if (!cardGallery) return;
 
-      const slides = slideshowComponent.querySelectorAll('slideshow-slide:not([hidden])');
-      const dots = dotsContainer.querySelectorAll('.product-card-gallery-carousel-dot');
-      const enableHover = dotsContainer.getAttribute('data-enable-hover') === 'true';
+        const slideshowComponent = cardGallery.querySelector('slideshow-component');
+        if (!slideshowComponent) return;
 
-      if (slides.length <= 1) return;
+        const slides = Array.from(slideshowComponent.querySelectorAll('slideshow-slide')).filter(slide => !slide.hasAttribute('hidden'));
+        const dots = dotsContainer.querySelectorAll('.product-card-gallery-carousel-dot');
+        const enableHover = dotsContainer.getAttribute('data-enable-hover') === 'true';
 
-      let currentSlide = 0;
-      let autoplayInterval = null;
+        if (slides.length <= 1) return;
 
-      function goToSlide(index) {
-        if (dots[currentSlide]) {
-          dots[currentSlide].classList.remove('active');
+        let currentSlide = 0;
+        let autoplayInterval = null;
+
+        function goToSlide(index) {
+          // Remove active class from current dot
+          if (dots[currentSlide]) {
+            dots[currentSlide].classList.remove('active');
+          }
+
+          // Hide current slide
+          if (slides[currentSlide]) {
+            slides[currentSlide].setAttribute('aria-hidden', 'true');
+          }
+
+          // Update current slide index
+          currentSlide = index;
+
+          // Show new slide
+          if (slides[currentSlide]) {
+            slides[currentSlide].setAttribute('aria-hidden', 'false');
+            slides[currentSlide].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+          }
+
+          // Add active class to new dot
+          if (dots[currentSlide]) {
+            dots[currentSlide].classList.add('active');
+          }
+
+          // Try to use slideshow component's select method if available
+          if (slideshowComponent && typeof slideshowComponent.select === 'function') {
+            slideshowComponent.select(index);
+          }
         }
 
-        currentSlide = index;
+        // Handle dot clicks
+        dots.forEach((dot, index) => {
+          dot.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (autoplayInterval) {
+              clearInterval(autoplayInterval);
+              autoplayInterval = null;
+            }
+            goToSlide(index);
+          });
+        });
 
-        // Use the slideshow component's navigation method if available
-        if (slideshowComponent && slideshowComponent.select) {
-          slideshowComponent.select(index);
+        // Handle hover auto-play
+        if (enableHover) {
+          cardGallery.addEventListener('mouseenter', () => {
+            if (autoplayInterval) return; // Don't start if already playing
+            autoplayInterval = setInterval(() => {
+              const nextSlide = (currentSlide + 1) % slides.length;
+              goToSlide(nextSlide);
+            }, 2000);
+          });
+
+          cardGallery.addEventListener('mouseleave', () => {
+            if (autoplayInterval) {
+              clearInterval(autoplayInterval);
+              autoplayInterval = null;
+            }
+          });
         }
+      });
+    }
 
-        if (dots[currentSlide]) {
-          dots[currentSlide].classList.add('active');
-        }
-      }
+    // Initialize on page load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initCarouselDots);
+    } else {
+      initCarouselDots();
+    }
 
-      // Handle dot clicks
-      dots.forEach((dot, index) => {
-        dot.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          goToSlide(index);
+    // Re-initialize when new content is added (for dynamic content)
+    if (typeof MutationObserver !== 'undefined') {
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.addedNodes.length) {
+            initCarouselDots();
+          }
         });
       });
 
-      // Handle hover auto-play
-      if (enableHover) {
-        cardGallery.addEventListener('mouseenter', () => {
-          autoplayInterval = setInterval(() => {
-            const nextSlide = (currentSlide + 1) % slides.length;
-            goToSlide(nextSlide);
-          }, 2000);
-        });
-
-        cardGallery.addEventListener('mouseleave', () => {
-          if (autoplayInterval) {
-            clearInterval(autoplayInterval);
-            autoplayInterval = null;
-          }
-        });
-      }
-    });
-  });
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+    }
+  })();
 {% endjavascript %}
 
 {% schema %}

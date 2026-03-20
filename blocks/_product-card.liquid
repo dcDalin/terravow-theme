@@ -4,11 +4,53 @@
   assign product = closest.product
 -%}
 
+{% liquid
+  # Check if any child block has collection grid style enabled
+  assign enable_collection_grid_style = false
+  for child_block in block.blocks
+    if child_block.type == '_product-card-gallery' and child_block.settings.enable_collection_grid_style
+      assign enable_collection_grid_style = true
+      break
+    endif
+  endfor
+%}
+
 {% capture children %}
   {% content_for 'blocks', closest.product: product %}
 {% endcapture %}
 
-{% render 'product-card', children: children, product: product %}
+{% if enable_collection_grid_style %}
+  {% capture additional_content %}
+    <div class="product-card__grid-info">
+      {%- comment -%} Star Rating {%- endcomment -%}
+      {% if block.settings.show_rating %}
+        <div class="product-card__rating">
+          <span class="rating-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+          <span class="rating-value">({{ block.settings.default_rating }})</span>
+        </div>
+      {% endif %}
+
+      {%- comment -%} CTA Button {%- endcomment -%}
+      {% if block.settings.show_cta_button %}
+        <a
+          href="{{ product.selected_or_first_available_variant.url | default: '#' }}"
+          class="product-card__grid-button"
+        >
+          <svg class="button-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <span>{{ block.settings.button_label }}</span>
+        </a>
+      {% endif %}
+    </div>
+  {% endcapture %}
+
+  {% render 'product-card', children: children, product: product, additional_content: additional_content %}
+{% else %}
+  {% render 'product-card', children: children, product: product %}
+{% endif %}
 
 {% schema %}
 {
@@ -66,6 +108,39 @@
       "step": 1,
       "unit": "px",
       "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Collection Grid Style"
+    },
+    {
+      "type": "paragraph",
+      "content": "These settings appear when collection grid style is enabled in the Product Image block"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "View Product"
+    },
+    {
+      "type": "text",
+      "id": "default_rating",
+      "label": "Default rating",
+      "default": "4.7",
+      "info": "Default star rating value"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "label": "Show star rating",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cta_button",
+      "label": "Show CTA button",
+      "default": true
     },
     {
       "type": "checkbox",

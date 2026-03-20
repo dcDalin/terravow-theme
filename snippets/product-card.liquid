@@ -7,6 +7,7 @@
   @param {object} children - The children of the product card
   @param {object} [block] - The block object
   @param {number} [product_card_gap] - The gap between the product card children (overrides block settings)
+  @param {string} [additional_content] - Additional content to render at the bottom of the card
 {%- enddoc -%}
 
 {% assign block_settings = block.settings %}
@@ -107,6 +108,7 @@
     "
   >
     {{ children }}
+    {{ additional_content }}
   </div>
 </product-card>
 
@@ -119,5 +121,76 @@
     .product-card slideshow-arrows .slideshow-control {
       display: none;
     }
+  }
+
+  /* Collection Grid Style */
+  .product-card__grid-info {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .product-card__rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+  }
+
+  .rating-stars {
+    color: #fbbf24;
+    letter-spacing: 2px;
+  }
+
+  .rating-value {
+    color: #666;
+    font-weight: 500;
+  }
+
+  .product-card__grid-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 20px;
+    background: #111;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 999px;
+    font-weight: 500;
+    font-size: 13px;
+    border: 2px solid #111;
+    transition: all 0.2s;
+    margin-top: 4px;
+  }
+
+  .product-card__grid-button .button-icon {
+    display: none;
+    width: 18px;
+    height: 18px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  @media (min-width: 768px) {
+    .product-card__grid-button {
+      padding: 8px 24px;
+      font-size: 14px;
+    }
+
+    .product-card__grid-button .button-icon {
+      display: block;
+    }
+  }
+
+  .product-card__grid-button:hover {
+    background: white;
+    color: #111;
+  }
+
+  .product-card__grid-button:hover .button-icon {
+    transform: translateX(-4px);
   }
 {% endstylesheet %}
