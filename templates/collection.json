@@ -103,7 +103,6 @@
       "blocks": {
         "filters": {
           "type": "filters",
-          "disabled": true,
           "static": true,
           "settings": {
             "enable_filtering": true,
@@ -130,6 +129,10 @@
           "static": true,
           "settings": {
             "product_card_gap": 16,
+            "button_label": "View Product",
+            "default_rating": "4.7",
+            "show_rating": true,
+            "show_cta_button": true,
             "inherit_color_scheme": true,
             "color_scheme": "",
             "border": "solid",
@@ -145,6 +148,7 @@
             "card-gallery": {
               "type": "_product-card-gallery",
               "settings": {
+                "enable_collection_grid_style": true,
                 "image_ratio": "adapt",
                 "border": "none",
                 "border_width": 1,
